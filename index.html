@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Day 1 Quest — Interactive Revision</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Confetti & Tone.js for rewarding feedback -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Explicit non-ligature monospace font so >=, <=, !=, == render as two separate code characters */
+        .code-font {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-variant-ligatures: none;
+            font-feature-settings: "liga" 0, "calt" 0;
+        }
+
+        /* Custom checkbox strike-through */
+        .task-check:checked + label {
+            text-decoration: line-through;
+            color: #94a3b8;
+        }
+
+        /* Draggable chips */
+        .draggable-chip {
+            cursor: grab;
+            user-select: none;
+            touch-action: manipulation;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+        }
+        .draggable-chip:active {
+            cursor: grabbing;
+            transform: scale(1.04);
+        }
+        .draggable-chip.selected-chip {
+            outline: 3px solid #2563eb;
+            outline-offset: 2px;
+            transform: scale(1.05);
+        }
+
+        /* Drop zones */
+        .drop-zone {
+            transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+        }
+        .drop-zone.drag-over {
+            background-color: #eff6ff;
+            border-color: #3b82f6;
+            transform: scale(1.01);
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body class="text-slate-800 pb-24">
+
+    <!-- Sticky Quest Header & Mission Jump Bar -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
+        <div class="max-w-4xl mx-auto px-4 py-3 sm:px-6">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center text-xl font-extrabold shadow-sm">
+                        ⚡
+                    </div>
+                    <div>
+                        <h1 class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">Python Revision</h1>
+                     
+                    </div>
+                </div>
+
+                <!-- XP & Progress Counter -->
+                <div class="flex items-center gap-3 bg-slate-100 px-3.5 py-2 rounded-2xl border border-slate-200">
+                    <div>
+                        <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Mission XP</div>
+                        <div id="xp-counter" class="text-sm font-extrabold text-indigo-600">0 / 15 Tasks</div>
+                    </div>
+                    <div class="w-24 sm:w-32 h-3 bg-slate-300 rounded-full overflow-hidden">
+                        <div id="xp-bar" class="h-full bg-gradient-to-r from-blue-500 to-indigo-600 w-0 transition-all duration-300 rounded-full"></div>
+                    </div>
+                    <button type="button" onclick="resetQuest()" title="Reset Quest" class="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200 rounded-lg text-xs font-bold">
+                        ↺
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Mission Jump Pills (Prevents Scroll Overwhelm) -->
+            <nav class="flex items-center gap-2 overflow-x-auto pt-3 pb-1 no-scrollbar text-xs font-bold">
+                <a href="#mission-1" class="px-3 py-1.5 rounded-full bg-blue-100 text-blue-800 hover:bg-blue-200 whitespace-nowrap">1. Print, Input & Vars</a>
+                <a href="#mission-2" class="px-3 py-1.5 rounded-full bg-amber-100 text-amber-800 hover:bg-amber-200 whitespace-nowrap">2. Mathematical Operations</a>
+                <a href="#mission-3" class="px-3 py-1.5 rounded-full bg-purple-100 text-purple-800 hover:bg-purple-200 whitespace-nowrap">3. If / Else</a>
+                <a href="#mission-4" class="px-3 py-1.5 rounded-full bg-rose-100 text-rose-800 hover:bg-rose-200 whitespace-nowrap">4. Elif & Logic</a>
+                <a href="#mission-5" class="px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-800 hover:bg-emerald-200 whitespace-nowrap">5. Functions</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-6 space-y-10">
+
+        <!-- =================================================================== -->
+        <!-- MISSION 1: PRINT, INPUT & VARIABLES                                 -->
+        <!-- =================================================================== -->
+        <section id="mission-1" class="bg-white rounded-3xl border-2 border-blue-200 shadow-sm overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 text-white flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl bg-white/20 p-2 rounded-xl">🚀</span>
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-blue-100">Mission 1</span>
+                        <h2 class="text-lg sm:text-xl font-extrabold">Print, Input & Variables</h2>
+                    </div>
+                </div>
+                <span id="m1-badge" class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold">0 / 3 Done</span>
+            </div>
+
+            <div class="p-5 sm:p-6 space-y-6">
+                <!-- Quick Refresher Box -->
+                <div class="bg-blue-50/70 border border-blue-200 rounded-2xl p-4">
+                    <div class="text-xs font-extrabold uppercase tracking-wider text-blue-700 mb-2">👀 Let's have a quick look!</div>
+                    <pre class="code-font text-xs sm:text-sm bg-slate-900 text-slate-100 p-3.5 rounded-xl overflow-x-auto leading-relaxed"><code><span class="text-amber-300">hero_name</span> = <span class="text-sky-400">input</span>(<span class="text-emerald-300">"Enter your gamer tag: "</span>)   <span class="text-slate-400"># Variable + Input (str)</span>
+<span class="text-amber-300">level</span> = <span class="text-sky-400">int</span>(<span class="text-sky-400">input</span>(<span class="text-emerald-300">"What level are you? "</span>))      <span class="text-slate-400"># Number input (int)</span>
+<span class="text-sky-400">print</span>(<span class="text-emerald-300">"Welcome"</span>, <span class="text-amber-300">hero_name</span>, <span class="text-emerald-300">"to Level"</span>, <span class="text-amber-300">level</span>)  <span class="text-slate-400"># Print output</span></code></pre>
+                </div>
+
+                <!-- Activity 1.1: Choose Valid Variable Names -->
+                <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 bg-slate-50/50 space-y-3">
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" id="chk-1-1" onchange="syncProgress()" class="task-check mt-1 w-5 h-5 accent-blue-600 rounded cursor-pointer">
+                        <label for="chk-1-1" class="font-bold text-slate-900 text-base cursor-pointer">
+                            Activity 1.1: Spot the Valid Variable Names! (Tap all 3 valid names)
+                        </label>
+                    </div>
+                    <p class="text-xs text-slate-500 pl-8">Rule reminder: No spaces, can't start with a number, and no special symbols like <code class="code-font">@</code> or <code class="code-font">-</code>!</p>
+                    <div class="pl-8 grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                        <button type="button" onclick="toggleVarBtn(this, true)" class="var-btn p-2.5 rounded-xl border-2 border-slate-300 bg-white code-font text-sm font-bold text-slate-700 hover:border-blue-400 transition">player_1</button>
+                        <button type="button" onclick="toggleVarBtn(this, false)" class="var-btn p-2.5 rounded-xl border-2 border-slate-300 bg-white code-font text-sm font-bold text-slate-700 hover:border-blue-400 transition">2fast</button>
+                        <button type="button" onclick="toggleVarBtn(this, true)" class="var-btn p-2.5 rounded-xl border-2 border-slate-300 bg-white code-font text-sm font-bold text-slate-700 hover:border-blue-400 transition">highScore</button>
+                        <button type="button" onclick="toggleVarBtn(this, false)" class="var-btn p-2.5 rounded-xl border-2 border-slate-300 bg-white code-font text-sm font-bold text-slate-700 hover:border-blue-400 transition">my score</button>
+                        <button type="button" onclick="toggleVarBtn(this, false)" class="var-btn p-2.5 rounded-xl border-2 border-slate-300 bg-white code-font text-sm font-bold text-slate-700 hover:border-blue-400 transition">total-coins</button>
+                        <button type="button" onclick="toggleVarBtn(this, true)" class="var-btn p-2.5 rounded-xl border-2 border-slate-300 bg-white code-font text-sm font-bold text-slate-700 hover:border-blue-400 transition">_secret_key</button>
+                    </div>
+                    <div id="var-feedback" class="pl-8 text-xs font-bold text-blue-700"></div>
+                </div>
+
+                <!-- Activity 1.2: Drag & Drop Data Types & Valid Inputs -->
+                <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 bg-slate-50/50 space-y-3">
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" id="chk-1-2" onchange="syncProgress()" class="task-check mt-1 w-5 h-5 accent-blue-600 rounded cursor-pointer">
+                        <label for="chk-1-2" class="font-bold text-slate-900 text-base cursor-pointer">
+                            Activity 1.2: Drag & Drop — Build Data Types & Valid Inputs
+                        </label>
+                    </div>
+                    <p class="text-xs text-slate-500 pl-8">Drag each block (or tap a block then tap its matching box):</p>
+
+                    <!-- Draggable Pool (Scrambled Order) -->
+                    <div class="pl-8 flex flex-wrap gap-2" id="pool-m1">
+                        <div draggable="true" data-value='input("Name: ")' data-target="txt_input" class="draggable-chip px-3 py-1.5 bg-sky-100 border border-sky-300 text-sky-900 rounded-xl code-font text-xs font-bold">input("Name: ")</div>
+                        <div draggable="true" data-value="9.5" data-target="float" class="draggable-chip px-3 py-1.5 bg-purple-100 border border-purple-300 text-purple-900 rounded-xl code-font text-xs font-bold">9.5</div>
+                        <div draggable="true" data-value='"Dragon"' data-target="str" class="draggable-chip px-3 py-1.5 bg-emerald-100 border border-emerald-300 text-emerald-900 rounded-xl code-font text-xs font-bold">"Dragon"</div>
+                        <div draggable="true" data-value='int(input("Age: "))' data-target="num_input" class="draggable-chip px-3 py-1.5 bg-rose-100 border border-rose-300 text-rose-900 rounded-xl code-font text-xs font-bold">int(input("Age: "))</div>
+                        <div draggable="true" data-value="42" data-target="int" class="draggable-chip px-3 py-1.5 bg-amber-100 border border-amber-300 text-amber-900 rounded-xl code-font text-xs font-bold">42</div>
+                    </div>
+
+                    <!-- Drop Buckets -->
+                    <div class="pl-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
+                        <div data-accept="int" class="drop-zone min-h-[64px] p-2.5 rounded-xl border-2 border-dashed border-slate-300 bg-white flex flex-col justify-between">
+                            <span class="text-[11px] font-extrabold uppercase text-slate-400">Integer (<code class="code-font">int</code>)</span>
+                            <div class="dropped-content min-h-[28px] flex items-center"></div>
+                        </div>
+                        <div data-accept="float" class="drop-zone min-h-[64px] p-2.5 rounded-xl border-2 border-dashed border-slate-300 bg-white flex flex-col justify-between">
+                            <span class="text-[11px] font-extrabold uppercase text-slate-400">Decimal (<code class="code-font">float</code>)</span>
+                            <div class="dropped-content min-h-[28px] flex items-center"></div>
+                        </div>
+                        <div data-accept="str" class="drop-zone min-h-[64px] p-2.5 rounded-xl border-2 border-dashed border-slate-300 bg-white flex flex-col justify-between">
+                            <span class="text-[11px] font-extrabold uppercase text-slate-400">String (<code class="code-font">str</code>)</span>
+                            <div class="dropped-content min-h-[28px] flex items-center"></div>
+                        </div>
+                        <div data-accept="num_input" class="drop-zone min-h-[64px] p-2.5 rounded-xl border-2 border-dashed border-slate-300 bg-white flex flex-col justify-between">
+                            <span class="text-[11px] font-extrabold uppercase text-slate-400">Valid Number Input</span>
+                            <div class="dropped-content min-h-[28px] flex items-center"></div>
+                        </div>
+                        <div data-accept="txt_input" class="drop-zone min-h-[64px] p-2.5 rounded-xl border-2 border-dashed border-slate-300 bg-white flex flex-col justify-between">
+                            <span class="text-[11px] font-extrabold uppercase text-slate-400">Valid Text Input</span>
+                            <div class="dropped-content min-h-[28px] flex items-center"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity 1.3: Mini Coding Challenge + Live Greeter Simulator -->
+                <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 bg-slate-50/50 space-y-3">
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" id="chk-1-3" onchange="syncProgress()" class="task-check mt-1 w-5 h-5 accent-blue-600 rounded cursor-pointer">
+                        <label for="chk-1-3" class="font-bold text-slate-900 text-base cursor-pointer">
+                            Activity 1.3: Code It! Favorite Game Greeter
+                        </label>
+                    </div>
+
+                    <!-- Interactive Preview Simulator (On Top, Pure Output with Icons) -->
+                    <div class="ml-8 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-4 space-y-3 shadow-2xs">
+                        <div class="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-blue-700">
+                            <span class="text-base">🎮</span> See How It Works
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <input id="sim-greeter-game" type="text" value="Minecraft" placeholder="Favorite game" oninput="runGreeterSim()" class="px-3 py-2 rounded-xl border border-blue-200 bg-white text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+                            <input id="sim-greeter-hours" type="number" value="4" placeholder="Hours played" oninput="runGreeterSim()" class="px-3 py-2 rounded-xl border border-blue-200 bg-white text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+                            <button type="button" onclick="runGreeterSim()" class="px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold transition shadow-2xs">▶ Test Output</button>
+                        </div>
+                        <div id="sim-greeter-out" class="bg-white border border-blue-200 text-slate-800 text-sm font-bold p-3 rounded-xl flex items-center gap-2.5">
+                            <span class="text-xl">🕹️</span>
+                            <span>You played <b>Minecraft</b> for <b>4 hours</b>!</span>
+                        </div>
+                    </div>
+
+                    <!-- Instructions Below (Student figures out input types) -->
+                    <ol class="list-decimal list-inside text-sm text-slate-700 pl-8 space-y-1">
+                        <li>Ask for their favorite game and save it in <b class="code-font text-slate-900">fav_game</b>.</li>
+                        <li>Ask how many hours they played and save it in <b class="code-font text-slate-900">hours</b>.</li>
+                        <li>Print both <b class="code-font text-slate-900">fav_game</b> and <b class="code-font text-slate-900">hours</b>.</li>
+                    </ol>
+                </div>
+
+                <!-- Read-Out Summary Box (Short, Simple Pointers) -->
+                <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-2xl p-4">
+                    <div class="mb-2">
+                        <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-800">🗣️ Read-Out Summary</span>
+                    </div>
+                    <ul id="sum-1" class="space-y-1.5 text-sm text-emerald-950 font-medium">
+                        <li onclick="toggleStrike(this)" class="cursor-pointer flex items-start gap-2 select-none hover:text-emerald-700">
+                            <span class="font-bold text-emerald-600">☐</span>
+                            <span><b>Variables</b> store data (no spaces, can't start with a number).</span>
+                        </li>
+                        <li onclick="toggleStrike(this)" class="cursor-pointer flex items-start gap-2 select-none hover:text-emerald-700">
+                            <span class="font-bold text-emerald-600">☐</span>
+                            <span><code class="code-font font-bold">input()</code> gets text; wrap in <code class="code-font font-bold">int()</code> for numbers.</span>
+                        </li>
+                        <li onclick="toggleStrike(this)" class="cursor-pointer flex items-start gap-2 select-none hover:text-emerald-700">
+                            <span class="font-bold text-emerald-600">☐</span>
+                            <span><code class="code-font font-bold">print()</code> shows answers on the screen.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- =================================================================== -->
+        <!-- MISSION 2: MATH CALCULATIONS & CANDY SHARING                        -->
+        <!-- =================================================================== -->
+        <section id="mission-2" class="bg-white rounded-3xl border-2 border-amber-200 shadow-sm overflow-hidden">
+            <div class="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4 text-white flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl bg-white/20 p-2 rounded-xl">🧮</span>
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-100">Mission 2</span>
+                        <h2 class="text-lg sm:text-xl font-extrabold">Math Calculations & Operators</h2>
+                    </div>
+                </div>
+                <span id="m2-badge" class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold">0 / 3 Done</span>
+            </div>
+
+            <div class="p-5 sm:p-6 space-y-6">
+                <!-- Activity 2.1: Candy Distribution Problem + Hint Box + Visual Simulator -->
+                <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 bg-slate-50/50 space-y-3">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex items-start gap-3">
+                            <input type="checkbox" id="chk-2-1" onchange="syncProgress()" class="task-check mt-1 w-5 h-5 accent-amber-600 rounded cursor-pointer">
+                            <label for="chk-2-1" class="font-bold text-slate-900 text-base cursor-pointer">
+                                Activity 2.1: Share Candies with Friends!
+                            </label>
+                        </div>
+                        <button type="button" onclick="toggleHint('hint-candy')" class="px-3 py-1 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-extrabold flex items-center gap-1 shrink-0 transition">
+                            <span>💡</span> Need a Hint?
+                        </button>
+                    </div>
+
+                    <!-- Interactive Candy Sharing Simulator (On Top, Visual Output Only) -->
+                    <div class="ml-8 bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 rounded-2xl p-4 space-y-3 shadow-2xs">
+                        <div class="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-amber-800">
+                            <span class="text-base">🍬</span> See How It Works
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <div class="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-xl border border-amber-200">
+                                <span class="text-xs font-bold text-slate-500">Candies:</span>
+                                <input id="sim-candies" type="number" min="0" max="100" value="17" oninput="runCandySim()" class="w-full text-xs font-extrabold text-slate-900 focus:outline-none">
+                            </div>
+                            <div class="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-xl border border-amber-200">
+                                <span class="text-xs font-bold text-slate-500">Friends:</span>
+                                <input id="sim-friends" type="number" min="1" max="20" value="5" oninput="runCandySim()" class="w-full text-xs font-extrabold text-slate-900 focus:outline-none">
+                            </div>
+                            <button type="button" onclick="runCandySim()" class="px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-extrabold transition shadow-2xs">▶ Share Candies</button>
+                        </div>
+                        <div id="sim-candy-out" class="bg-white border border-amber-200 rounded-xl p-3 text-sm text-slate-800 space-y-1.5">
+                            <div class="flex items-center gap-2"><span>🎁</span><span>Each friend gets: <b class="text-amber-700">3 candies</b> 🍬🍬🍬</span></div>
+                            <div class="flex items-center gap-2"><span>🥣</span><span>Left over in bowl: <b class="text-rose-600">2 candies</b> 🍬🍬</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Instructions Below (No integer type hints) -->
+                    <ol class="list-decimal list-inside text-sm text-slate-700 pl-8 space-y-1">
+                        <li>Ask for total <b class="code-font text-slate-900">candies</b> and number of <b class="code-font text-slate-900">friends</b>.</li>
+                        <li>Find how many candies <b class="code-font text-slate-900">each_gets</b> and how many are <b class="code-font text-slate-900">leftover</b>.</li>
+                        <li>Print both answers clearly.</li>
+                    </ol>
+
+                    <!-- Collapsible Hint Box -->
+                    <div id="hint-candy" class="hidden ml-8 bg-amber-50 border-2 border-amber-300 rounded-xl p-3.5 text-xs sm:text-sm text-amber-950 space-y-1.5">
+                        <div class="font-extrabold text-amber-800">🍬 Candy Math Secret Weapons:</div>
+                        <div>• <b>Floor Division (<code class="code-font font-bold">//</code>):</b> Chops off decimals! <code class="code-font bg-white px-1.5 py-0.5 rounded">17 // 5 = 3</code> candies each.</div>
+                        <div>• <b>Modulo (<code class="code-font font-bold">%</code>):</b> Gives only the remainder! <code class="code-font bg-white px-1.5 py-0.5 rounded">17 % 5 = 2</code> candies left over.</div>
+                    </div>
+                </div>
+
+                <!-- Activity 2.2: Jumbled Math Symbol Matcher -->
+                <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 bg-slate-50/50 space-y-3">
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" id="chk-2-2" onchange="syncProgress()" class="task-check mt-1 w-5 h-5 accent-amber-600 rounded cursor-pointer">
+                        <label for="chk-2-2" class="font-bold text-slate-900 text-base cursor-pointer">
+                            Activity 2.2: Jumbled Symbols — Drag the Right Math Symbol!
+                        </label>
+                    </div>
+
+                    <!-- Draggable Symbol Chips (Scrambled Order) -->
+                    <div class="pl-8 flex flex-wrap gap-2.5" id="pool-m2">
+                        <div draggable="true" data-value="**" data-target="pow" class="draggable-chip px-4 py-1.5 bg-white border-2 border-amber-300 text-slate-900 rounded-xl code-font text-sm font-extrabold shadow-2xs">**</div>
+                        <div draggable="true" data-value="*" data-target="mul" class="draggable-chip px-4 py-1.5 bg-white border-2 border-amber-300 text-slate-900 rounded-xl code-font text-sm font-extrabold shadow-2xs">*</div>
+                        <div draggable="true" data-value="+" data-target="add" class="draggable-chip px-4 py-1.5 bg-white border-2 border-amber-300 text-slate-900 rounded-xl code-font text-sm font-extrabold shadow-2xs">+</div>
+                        <div draggable="true" data-value="//" data-target="floordiv" class="draggable-chip px-4 py-1.5 bg-white border-2 border-amber-300 text-slate-900 rounded-xl code-font text-sm font-extrabold shadow-2xs">//</div>
+                        <div draggable="true" data-value="%" data-target="mod" class="draggable-chip px-4 py-1.5 bg-white border-2 border-amber-300 text-slate-900 rounded-xl code-font text-sm font-extrabold shadow-2xs">%</div>
+                    </div>
+
+                    <!-- Clues Grid -->
+                    <div class="pl-8 space-y-2 pt-1">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 bg-white rounded-xl border border-slate-200">
+                            <span class="text-sm font-medium text-slate-700">1. "I want to <b>add</b> two numbers together"</span>
+                            <div data-accept="add" class="drop-zone w-28 h-10 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center"><div class="dropped-content"></div></div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 bg-white rounded-xl border border-slate-200">
+                            <span class="text-sm font-medium text-slate-700">2. "I want to find the <b>remainder</b> left over"</span>
+                            <div data-accept="mod" class="drop-zone w-28 h-10 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center"><div class="dropped-content"></div></div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 bg-white rounded-xl border border-slate-200">
+                            <span class="text-sm font-medium text-slate-700">3. "I want <b>power</b>: <code class="code-font font-bold">2 ? 3 = 8</code>"</span>
+                            <div data-accept="pow" class="drop-zone w-28 h-10 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center"><div class="dropped-content"></div></div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 bg-white rounded-xl border border-slate-200">
+                            <span class="text-sm font-medium text-slate-700">4. "I want <b>floor division</b> (whole number only)"</span>
+                            <div data-accept="floordiv" class="drop-zone w-28 h-10 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center"><div class="dropped-content"></div></div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 bg-white rounded-xl border border-slate-200">
+                            <span class="text-sm font-medium text-slate-700">5. "I want to <b>multiply</b> two numbers"</span>
+                            <div data-accept="mul" class="drop-zone w-28 h-10 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center"><div class="dropped-content"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity 2.3: Division Data Types Quick Check -->
+                <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 bg-slate-50/50 space-y-3">
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" id="chk-2-3" onchange="syncProgress()" class="task-check mt-1 w-5 h-5 accent-amber-600 rounded cursor-pointer">
+                        <label for="chk-2-3" class="font-bold text-slate-900 text-base cursor-pointer">
+                            Activity 2.3: Division Detective — What Data Type Do You Get?
+                        </label>
+                    </div>
+
+                    <div class="pl-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2">
+                            <div class="code-font text-sm font-bold text-slate-900">4 / 2  ➔  <span class="text-amber-600">2.0</span></div>
+                            <p class="text-xs text-slate-500">Normal division (<code class="code-font">/</code>) produces what data type?</p>
+                            <div class="flex gap-2">
+                                <button type="button" onclick="checkQuickMCQ(this, false, 'div-q1')" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-bold hover:bg-slate-100">int</button>
+                                <button type="button" onclick="checkQuickMCQ(this, true, 'div-q1')" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-bold hover:bg-slate-100">float</button>
+                                <button type="button" onclick="checkQuickMCQ(this, false, 'div-q1')" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-bold hover:bg-slate-100">str</button>
+                            </div>
+                            <div id="div-q1" class="text-xs font-bold"></div>
+                        </div>
+
+                        <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2">
+                            <div class="code-font text-sm font-bold text-slate-900">4 // 2  ➔  <span class="text-emerald-600">2</span></div>
+                            <p class="text-xs text-slate-500">Floor division (<code class="code-font">//</code>) produces what data type?</p>
+                            <div class="flex gap-2">
+                                <button type="button" onclick="checkQuickMCQ(this, true, 'div-q2')" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-bold hover:bg-slate-100">int</button>
+                                <button type="button" onclick="checkQuickMCQ(this, false, 'div-q2')" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-bold hover:bg-slate-100">float</button>
+                                <button type="button" onclick="checkQuickMCQ(this, false, 'div-q2')" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-bold hover:bg-slate-100">bool</button>
+                            </div>
+                            <div id="div-q2" class="text-xs font-bold"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Read-Out Summary Box (3 Strike-out Pointers) -->
+                <!-- Read-Out Summary Box (Short, Simple Pointers) -->
+                <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-2xl p-4">
+                    <div class="mb-2">
+                        <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-800">🗣️ Read-Out Summary</span>
+                    </div>
+                    <ul id="sum-2" class="space-y-1.5 text-sm text-emerald-950 font-medium">
+                        <li onclick="toggleStrike(this)" class="cursor-pointer flex items-start gap-2 select-none hover:text-emerald-700">
+                            <span class="font-bold text-emerald-600">☐</span>
+                            <span><code class="code-font font-bold">/</code> gives a decimal (<code class="code-font font-bold">2.0</code>); <code class="code-font font-bold">//</code> gives a whole number (<code class="code-font font-bold">2</code>).</span>
+                        </li>
+                        <li onclick="toggleStrike(this)" class="cursor-pointer flex items-start gap-2 select-none hover:text-emerald-700">
+                            <span class="font-bold text-emerald-600">☐</span>
+                            <span><code class="code-font font-bold">%</code> gives the leftover remainder.</span>
+                        </li>
+                        <li onclick="toggleStrike(this)" class="cursor-pointer flex items-start gap-2 select-none hover:text-emerald-700">
+                            <span class="font-bold text-emerald-600">☐</span>
+                            <span><code class="code-font font-bold">**</code> calculates power, like <code class="code-font font-bold">2 ** 3 = 8</code>.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- =================================================================== -->
+        <!-- MISSION 3: IF & IF-ELSE CONDITIONS                                  -->
+        <!-- =================================================================== -->
+        <section id="mission-3" class="bg-white rounded-3xl border-2 border-purple-200 shadow-sm overflow-hidden">
+            <div class="bg-gradient-to-r from-purple-600 to-fuchsia-600 px-6 py-4 text-white flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl bg-white/20 p-2 rounded-xl">🔀</span>
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-purple-100">Mission 3</span>
+                        <h2 class="text-lg sm:text-xl font-extrabold">If & If-Else Decisions</h2>
+                    </div>
+                </div>
+                <span id="m3-badge" class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold">0 / 3 Done</span>
+            </div>
+
+            <div class="p-5 sm:p-6 space-y-6">
+                <!-- Simple Sample Code Box -->
+                <div class="bg-purple-50/70 border border-purple-200 rounded-2xl p-4">
+                    <div class="text-xs font-extrabold uppercase tracking-wider text-purple-700 mb-2">👀 Let's have a quick look!</div>
+                    <pre class="code-font text-xs sm:text-sm bg-slate-900 text-slate-100 p-3.5 rounded-xl overflow-x-auto leading-relaxed"><code><span class="text-amber-300">coins</span> = <span class="text-sky-400">int</span>(<span class="text-sky-400">input</span>(<span class="text-emerald-300">"How many coins? "</span>))
+<span class="text-fuchsia-400">if</span> <span class="text-amber-300">coins</span> >= <span class="text-sky-300">100</span>:
+    <span class="text-sky-400">print</span>(<span class="text-emerald-300">"Extra life unlocked!"</span>)
+<span class="text-fuchsia-400">else</span>:
+    <span class="text-sky-400">print</span>(<span class="text-emerald-300">"Keep collecting coins!"</span>)</code></pre>
+                </div>
+
+                <!-- Activity 3.1: Jumbled Comparison Operators -->
+                <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 bg-slate-50/50 space-y-3">
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" id="chk-3-1" onchange="syncProgress()" class="task-check mt-1 w-5 h-5 accent-purple-600 rounded cursor-pointer">
+                        <label for="chk-3-1" class="font-bold text-slate-900 text-base cursor-pointer">
+                            Activity 3.1: Jumbled Comparison Operators — Match All 6!
+                        </label>
+                    </div>
+
+                    <!-- Scrambled Comparison Operators (Explicit two-character coding syntax) -->
+                    <div class="pl-8 flex flex-wrap gap-2" id="pool-m3">
+                        <div draggable="true" data-value="!=" data-target="neq" class="draggable-chip px-3.5 py-1.5 bg-white border-2 border-purple-300 rounded-xl code-font text-sm font-extrabold tracking-wider">!=</div>
+                        <div draggable="true" data-value="<=" data-target="lte" class="draggable-chip px-3.5 py-1.5 bg-white border-2 border-purple-300 rounded-xl code-font text-sm font-extrabold tracking-wider">&lt;=</div>
+                        <div draggable="true" data-value=">" data-target="gt" class="draggable-chip px-3.5 py-1.5 bg-white border-2 border-purple-300 rounded-xl code-font text-sm font-extrabold tracking-wider">&gt;</div>
+                        <div draggable="true" data-value="==" data-target="eq" class="draggable-chip px-3.5 py-1.5 bg-white border-2 border-purple-300 rounded-xl code-font text-sm font-extrabold tracking-wider">==</div>
+                        <div draggable="true" data-value=">=" data-target="gte" class="draggable-chip px-3.5 py-1.5 bg-white border-2 border-purple-300 rounded-xl code-font text-sm font-extrabold tracking-wider">&gt;=</div>
+                        <div draggable="true" data-value="<" data-target="lt" class="draggable-chip px-3.5 py-1.5 bg-white border-2 border-purple-300 rounded-xl code-font text-sm font-extrabold tracking-wider">&lt;</div>
+                    </div>
+
+                    <div class="pl-8 grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                        <div class="flex items-center justify-between p-2.5 bg-white rounded-xl border border-slate-200">
+                            <span class="text-xs sm:text-sm font-semibold">Greater than</span>
+                            <div data-accept="gt" class="drop-zone w-20 h-9 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center"><div class="dropped-content"></div></div>
+                        </div>
+                        <div class="flex items-center justify-between p-2.5 bg-white rounded-xl border border-slate-200">
+                            <span class="text-xs sm:text-sm font-semibold">Greater than or equal to</span>
+                            <div data-accept="gte" class="drop-zone w-20 h-9 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center"><div class="dropped-content"></div></div>
+                        </div>
+                        <div class="flex items-center justify-between p-2.5 bg-white rounded-xl border border-slate-200">
+                            <span class="text-xs sm:text-sm font-semibold">Less than</span>
+                            <div data-accept="lt" class="drop-zone w-20 h-9 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center"><div class="dropped-content"></div></div>
+                        </div>
+                        <div class="flex items-center justify-between p-2.5 bg-white rounded-xl border border-slate-200">
+                            <span class="text-xs sm:text-sm font-semibold">Less than or equal to</span>
+                            <div data-accept="lte" class="drop-zone w-20 h-9 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center"><div class="dropped-content"></div></div>
+                        </div>
+                        <div class="flex items-center justify-between p-2.5 bg-white rounded-xl border border-slate-200">
+                            <span class="text-xs sm:text-sm font-semibold">Not equal to</span>
+                            <div data-accept="neq" class="drop-zone w-20 h-9 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center"><div class="dropped-content"></div></div>
+                        </div>
+                        <div class="flex items-center justify-between p-2.5 bg-white rounded-xl border border-slate-200">
+                            <span class="text-xs sm:text-sm font-semibold">Equal to (compare)</span>
+                            <div data-accept="eq" class="drop-zone w-20 h-9 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center"><div class="dropped-content"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity 3.2: MCQ Difference between a = 2 and a == 2 (Answer is B) -->
+                <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 bg-slate-50/50 space-y-3">
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" id="chk-3-2" onchange="syncProgress()" class="task-check mt-1 w-5 h-5 accent-purple-600 rounded cursor-pointer">
+                        <label for="chk-3-2" class="font-bold text-slate-900 text-base cursor-pointer">
+                            Activity 3.2: Quick Quiz — What is the difference between <code class="code-font bg-purple-100 px-1.5 rounded">a = 2</code> and <code class="code-font bg-purple-100 px-1.5 rounded">a == 2</code>?
+                        </label>
+                    </div>
+                    <div class="pl-8 space-y-2">
+                        <button type="button" onclick="checkQuickMCQ(this, false, 'eq-mcq')" class="w-full text-left p-3 rounded-xl border border-slate-300 bg-white hover:bg-purple-50 text-xs sm:text-sm font-medium transition">
+                            <b>A)</b> They do the exact same thing in Python; the second <code class="code-font font-bold">=</code> is just for decoration.
+                        </button>
+                        <button type="button" onclick="checkQuickMCQ(this, true, 'eq-mcq')" class="w-full text-left p-3 rounded-xl border border-slate-300 bg-white hover:bg-purple-50 text-xs sm:text-sm font-medium transition">
+                            <b>B)</b> <code class="code-font font-bold">a = 2</code> stores 2 inside <code class="code-font font-bold">a</code>; <code class="code-font font-bold">a == 2</code> asks if <code class="code-font font-bold">a</code> is equal to 2 (True or False).
+                        </button>
+                        <button type="button" onclick="checkQuickMCQ(this, false, 'eq-mcq')" class="w-full text-left p-3 rounded-xl border border-slate-300 bg-white hover:bg-purple-50 text-xs sm:text-sm font-medium transition">
+                            <b>C)</b> <code class="code-font font-bold">a = 2</code> is only for decimals, and <code class="code-font font-bold">a == 2</code> is only for words.
+                        </button>
+                        <div id="eq-mcq" class="text-xs font-bold pt-1"></div>
+                    </div>
+                </div>
+
+                <!-- Activity 3.3: Number Twin Checker + Interactive Simulator -->
+                <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 bg-slate-50/50 space-y-3">
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" id="chk-3-3" onchange="syncProgress()" class="task-check mt-1 w-5 h-5 accent-purple-600 rounded cursor-pointer">
+                        <label for="chk-3-3" class="font-bold text-slate-900 text-base cursor-pointer">
+                            Activity 3.3: Code It! Number Twin Checker
+                        </label>
+                    </div>
+
+                    <!-- Interactive Twin Checker Simulator (On Top, Pure Visual Output) -->
+                    <div class="ml-8 bg-gradient-to-br from-purple-50 to-fuchsia-50 border-2 border-purple-200 rounded-2xl p-4 space-y-3 shadow-2xs">
+                        <div class="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-purple-800">
+                            <span class="text-base">👯</span> See How It Works
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <div class="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-xl border border-purple-200">
+                                <span class="text-xs font-bold text-slate-500">First:</span>
+                                <input id="sim-num1" type="number" value="10" oninput="runTwinSim()" class="w-full text-xs font-extrabold text-slate-900 focus:outline-none">
+                            </div>
+                            <div class="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-xl border border-purple-200">
+                                <span class="text-xs font-bold text-slate-500">Second:</span>
+                                <input id="sim-num2" type="number" value="10" oninput="runTwinSim()" class="w-full text-xs font-extrabold text-slate-900 focus:outline-none">
+                            </div>
+                            <button type="button" onclick="runTwinSim()" class="px-3 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-extrabold transition shadow-2xs">▶ Check Match</button>
+                        </div>
+                        <div id="sim-twin-out" class="bg-white border border-purple-200 text-emerald-700 text-sm font-bold p-3 rounded-xl flex items-center gap-2.5">
+                            <span class="text-xl">✅</span>
+                            <span>They are equal!</span>
+                        </div>
+                    </div>
+
+                    <!-- Instructions Below -->
+                    <ol class="list-decimal list-inside text-sm text-slate-700 pl-8 space-y-1">
+                        <li>Ask the user for two numbers: <b class="code-font text-slate-900">num1</b> and <b class="code-font text-slate-900">num2</b>.</li>
+                        <li>Check if both numbers match and print <code class="code-font">"They are equal!"</code> or <code class="code-font">"Not equal!"</code>.</li>
+                    </ol>
+                </div>
+
+                <!-- Read-Out Summary Box (Short, Simple Pointers) -->
+                <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-2xl p-4">
+                    <div class="mb-2">
+                        <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-800">🗣️ Read-Out Summary</span>
+                    </div>
+                    <ul id="sum-3" class="space-y-1.5 text-sm text-emerald-950 font-medium">
+                        <li onclick="toggleStrike(this)" class="cursor-pointer flex items-start gap-2 select-none hover:text-emerald-700">
+                            <span class="font-bold text-emerald-600">☐</span>
+                            <span><code class="code-font font-bold">if</code> runs when True; <code class="code-font font-bold">else</code> runs when False.</span>
+                        </li>
+                        <li onclick="toggleStrike(this)" class="cursor-pointer flex items-start gap-2 select-none hover:text-emerald-700">
+                            <span class="font-bold text-emerald-600">☐</span>
+                            <span><code class="code-font font-bold">=</code> saves a value; <code class="code-font font-bold">==</code> checks if two values match.</span>
+                        </li>
+                        <li onclick="toggleStrike(this)" class="cursor-pointer flex items-start gap-2 select-none hover:text-emerald-700">
+                            <span class="font-bold text-emerald-600">☐</span>
+                            <span>Always end <code class="code-font font-bold">if</code> and <code class="code-font font-bold">else</code> lines with a colon <code class="code-font font-bold">:</code>.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- =================================================================== -->
+        <!-- MISSION 4: ELIF & LOGICAL OPERATORS                                 -->
+        <!-- =================================================================== -->
+        <section id="mission-4" class="bg-white rounded-3xl border-2 border-rose-200 shadow-sm overflow-hidden">
+            <div class="bg-gradient-to-r from-rose-600 to-pink-600 px-6 py-4 text-white flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl bg-white/20 p-2 rounded-xl">🧠</span>
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-rose-100">Mission 4</span>
+                        <h2 class="text-lg sm:text-xl font-extrabold">Elif & Logical Power-Ups</h2>
+                    </div>
+                </div>
+                <span id="m4-badge" class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold">0 / 3 Done</span>
+            </div>
+
+            <div class="p-5 sm:p-6 space-y-6">
+                <!-- Simple Program on if / elif / else -->
+                <div class="bg-rose-50/70 border border-rose-200 rounded-2xl p-4">
+                    <div class="text-xs font-extrabold uppercase tracking-wider text-rose-700 mb-2">👀 Let's have a quick look!</div>
+                    <pre class="code-font text-xs sm:text-sm bg-slate-900 text-slate-100 p-3.5 rounded-xl overflow-x-auto leading-relaxed"><code><span class="text-amber-300">temp</span> = <span class="text-sky-300">32</span>
+<span class="text-fuchsia-400">if</span> <span class="text-amber-300">temp</span> > <span class="text-sky-300">35</span>:
+    <span class="text-sky-400">print</span>(<span class="text-emerald-300">"Super hot!"</span>)
+<span class="text-fuchsia-400">elif</span> <span class="text-amber-300">temp</span> > <span class="text-sky-300">20</span>:
+    <span class="text-sky-400">print</span>(<span class="text-emerald-300">"Nice weather!"</span>)
+<span class="text-fuchsia-400">else</span>:
+    <span class="text-sky-400">print</span>(<span class="text-emerald-300">"Grab a jacket!"</span>)</code></pre>
+                </div>
+
+                <!-- Activity 4.1: Difference between elif and else (Answer is C) -->
+                <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 bg-slate-50/50 space-y-3">
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" id="chk-4-1" onchange="syncProgress()" class="task-check mt-1 w-5 h-5 accent-rose-600 rounded cursor-pointer">
+                        <label for="chk-4-1" class="font-bold text-slate-900 text-base cursor-pointer">
+                            Activity 4.1: What is the difference between <code class="code-font bg-rose-100 px-1.5 rounded">elif</code> and <code class="code-font bg-rose-100 px-1.5 rounded">else</code>?
+                        </label>
+                    </div>
+                    <div class="pl-8 space-y-2">
+                        <button type="button" onclick="checkQuickMCQ(this, false, 'elif-mcq')" class="w-full text-left p-3 rounded-xl border border-slate-300 bg-white hover:bg-rose-50 text-xs sm:text-sm font-medium transition">
+                            <b>A)</b> <code class="code-font font-bold">else</code> comes before <code class="code-font font-bold">if</code>, and <code class="code-font font-bold">elif</code> comes at the very end.
+                        </button>
+                        <button type="button" onclick="checkQuickMCQ(this, false, 'elif-mcq')" class="w-full text-left p-3 rounded-xl border border-slate-300 bg-white hover:bg-rose-50 text-xs sm:text-sm font-medium transition">
+                            <b>B)</b> <code class="code-font font-bold">elif</code> and <code class="code-font font-bold">else</code> both require a True/False condition next to them.
+                        </button>
+                        <button type="button" onclick="checkQuickMCQ(this, true, 'elif-mcq')" class="w-full text-left p-3 rounded-xl border border-slate-300 bg-white hover:bg-rose-50 text-xs sm:text-sm font-medium transition">
+                            <b>C)</b> <code class="code-font font-bold">elif</code> checks another specific condition; <code class="code-font font-bold">else</code> needs NO condition and catches everything left over.
+                        </button>
+                        <div id="elif-mcq" class="text-xs font-bold pt-1"></div>
+                    </div>
+                </div>
+
+                <!-- Activity 4.2: Logical Operators Drag & Drop (Scrambled Order) -->
+                <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 bg-slate-50/50 space-y-3">
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" id="chk-4-2" onchange="syncProgress()" class="task-check mt-1 w-5 h-5 accent-rose-600 rounded cursor-pointer">
+                        <label for="chk-4-2" class="font-bold text-slate-900 text-base cursor-pointer">
+                            Activity 4.2: Logical Power-Ups — Drag <code class="code-font">and</code>, <code class="code-font">or</code>, <code class="code-font">not</code>!
+                        </label>
+                    </div>
+
+                    <!-- Draggable Pool -->
+                    <div class="pl-8 flex flex-wrap gap-2.5" id="pool-m4">
+                        <div draggable="true" data-value="not" data-target="logic_not" class="draggable-chip px-4 py-1.5 bg-white border-2 border-rose-300 rounded-xl code-font text-sm font-extrabold">not</div>
+                        <div draggable="true" data-value="and" data-target="logic_and" class="draggable-chip px-4 py-1.5 bg-white border-2 border-rose-300 rounded-xl code-font text-sm font-extrabold">and</div>
+                        <div draggable="true" data-value="or" data-target="logic_or" class="draggable-chip px-4 py-1.5 bg-white border-2 border-rose-300 rounded-xl code-font text-sm font-extrabold">or</div>
+                    </div>
+
+                    <!-- Drop Zones Grid -->
+                    <div class="pl-8 space-y-2.5 pt-1">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 bg-white rounded-xl border border-slate-200">
+                            <span class="text-xs sm:text-sm font-medium text-slate-700">1. <b>BOTH</b> conditions must be True</span>
+                            <div data-accept="logic_and" class="drop-zone w-24 h-9 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center shrink-0"><div class="dropped-content"></div></div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 bg-white rounded-xl border border-slate-200">
+                            <span class="text-xs sm:text-sm font-medium text-slate-700">2. <b>AT LEAST ONE</b> condition is True</span>
+                            <div data-accept="logic_or" class="drop-zone w-24 h-9 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center shrink-0"><div class="dropped-content"></div></div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 bg-white rounded-xl border border-slate-200">
+                            <span class="text-xs sm:text-sm font-medium text-slate-700">3. <b>FLIPS</b> True to False (or False to True)</span>
+                            <div data-accept="logic_not" class="drop-zone w-24 h-9 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center shrink-0"><div class="dropped-content"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity 4.3: Rollercoaster Ride Gatekeeper + Visual Simulator -->
+                <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 bg-slate-50/50 space-y-3">
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" id="chk-4-3" onchange="syncProgress()" class="task-check mt-1 w-5 h-5 accent-rose-600 rounded cursor-pointer">
+                        <label for="chk-4-3" class="font-bold text-slate-900 text-base cursor-pointer">
+                            Activity 4.3: Code It! Theme Park Ride Check
+                        </label>
+                    </div>
+
+                    <!-- Interactive Ride Gatekeeper Simulator (On Top, Pure Visual Output) -->
+                    <div class="ml-8 bg-gradient-to-br from-rose-50 to-pink-50 border-2 border-rose-200 rounded-2xl p-4 space-y-3 shadow-2xs">
+                        <div class="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-rose-800">
+                            <span class="text-base">🎢</span> See How It Works
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <div class="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-xl border border-rose-200">
+                                <span class="text-xs font-bold text-slate-500">Age:</span>
+                                <input id="sim-ride-age" type="number" min="1" max="99" value="12" oninput="runRideSim()" class="w-full text-xs font-extrabold text-slate-900 focus:outline-none">
+                            </div>
+                            <div class="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-xl border border-rose-200">
+                                <span class="text-xs font-bold text-slate-500">Ticket:</span>
+                                <select id="sim-ride-ticket" onchange="runRideSim()" class="w-full text-xs font-extrabold text-slate-900 bg-transparent focus:outline-none">
+                                    <option value="yes">yes</option>
+                                    <option value="no">no</option>
+                                </select>
+                            </div>
+                            <button type="button" onclick="runRideSim()" class="px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold transition shadow-2xs">▶ Test Gate</button>
+                        </div>
+                        <div id="sim-ride-out" class="bg-white border border-rose-200 text-emerald-700 text-sm font-bold p-3 rounded-xl flex items-center gap-2.5">
+                            <span class="text-xl">🎢</span>
+                            <span>Hop on! Enjoy the ride!</span>
+                        </div>
+                    </div>
+
+                    <!-- Instructions Below (Student figures out input types) -->
+                    <ol class="list-decimal list-inside text-sm text-slate-700 pl-8 space-y-1">
+                        <li>Ask for the rider's <b class="code-font text-slate-900">age</b> and if they have a <b class="code-font text-slate-900">ticket</b> (<code class="code-font">"yes"</code> or <code class="code-font">"no"</code>).</li>
+                        <li>Allow them on only if they are 10 or older <b>and</b> have a ticket; handle missing tickets or younger ages too.</li>
+                    </ol>
+                </div>
+
+                <!-- Read-Out Summary Box (Short, Simple Pointers) -->
+                <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-2xl p-4">
+                    <div class="mb-2">
+                        <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-800">🗣️ Read-Out Summary</span>
+                    </div>
+                    <ul id="sum-4" class="space-y-1.5 text-sm text-emerald-950 font-medium">
+                        <li onclick="toggleStrike(this)" class="cursor-pointer flex items-start gap-2 select-none hover:text-emerald-700">
+                            <span class="font-bold text-emerald-600">☐</span>
+                            <span><code class="code-font font-bold">elif</code> tests extra choices; <code class="code-font font-bold">else</code> catches everything else.</span>
+                        </li>
+                        <li onclick="toggleStrike(this)" class="cursor-pointer flex items-start gap-2 select-none hover:text-emerald-700">
+                            <span class="font-bold text-emerald-600">☐</span>
+                            <span><code class="code-font font-bold">and</code> needs BOTH to be True; <code class="code-font font-bold">or</code> needs only ONE.</span>
+                        </li>
+                        <li onclick="toggleStrike(this)" class="cursor-pointer flex items-start gap-2 select-none hover:text-emerald-700">
+                            <span class="font-bold text-emerald-600">☐</span>
+                            <span><code class="code-font font-bold">not</code> flips True to False.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- =================================================================== -->
+        <!-- MISSION 5: PYTHON FUNCTIONS                                         -->
+        <!-- =================================================================== -->
+        <section id="mission-5" class="bg-white rounded-3xl border-2 border-emerald-200 shadow-sm overflow-hidden">
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-4 text-white flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl bg-white/20 p-2 rounded-xl">⚙️</span>
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-100">Mission 5</span>
+                        <h2 class="text-lg sm:text-xl font-extrabold">Python Functions</h2>
+                    </div>
+                </div>
+                <span id="m5-badge" class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold">0 / 3 Done</span>
+            </div>
+
+            <div class="p-5 sm:p-6 space-y-6">
+                <!-- Activity 5.1: Create myName() + Hint Box -->
+                <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 bg-slate-50/50 space-y-3">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex items-start gap-3">
+                            <input type="checkbox" id="chk-5-1" onchange="syncProgress()" class="task-check mt-1 w-5 h-5 accent-emerald-600 rounded cursor-pointer">
+                            <label for="chk-5-1" class="font-bold text-slate-900 text-base cursor-pointer">
+                                Activity 5.1: Build & Call <code class="code-font bg-emerald-100 px-1.5 rounded">myName()</code>
+                            </label>
+                        </div>
+                        <button type="button" onclick="toggleHint('hint-def')" class="px-3 py-1 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-xs font-extrabold flex items-center gap-1 shrink-0 transition">
+                            <span>💡</span> Forgot <code class="code-font">def</code>?
+                        </button>
+                    </div>
+
+                    <ol class="list-decimal list-inside text-sm text-slate-700 pl-8 space-y-1">
+                        <li>Create a function named <b class="code-font text-slate-900">myName()</b>.</li>
+                        <li>Inside the function, print your name.</li>
+                        <li>Call <b class="code-font text-slate-900">myName()</b> below it so it runs!</li>
+                    </ol>
+
+                    <!-- Hint Box for def -->
+                    <div id="hint-def" class="hidden ml-8 bg-emerald-50 border-2 border-emerald-300 rounded-xl p-3.5 text-xs sm:text-sm text-emerald-950 space-y-1.5">
+                        <div class="font-extrabold text-emerald-800">⚙️ How to spell a Function:</div>
+                        <div>Always start with the keyword <code class="code-font font-bold bg-white px-1.5 py-0.5 rounded">def</code> (short for <b>define</b>), followed by the name, parentheses <code class="code-font font-bold">()</code>, and a colon <code class="code-font font-bold">:</code>!</div>
+                        <pre class="code-font text-xs bg-slate-900 text-white p-2.5 rounded-lg mt-1">def myName():
+    print("Alex")
+
+myName()  # Calling the function!</pre>
+                    </div>
+                </div>
+
+                <!-- Activity 5.2: Label the Parts of a Function (Drag & Drop) -->
+                <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 bg-slate-50/50 space-y-3">
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" id="chk-5-2" onchange="syncProgress()" class="task-check mt-1 w-5 h-5 accent-emerald-600 rounded cursor-pointer">
+                        <label for="chk-5-2" class="font-bold text-slate-900 text-base cursor-pointer">
+                            Activity 5.2: Label the Function Parts!
+                        </label>
+                    </div>
+                    <p class="text-sm text-slate-600 pl-8">Look at the code below, then drag the right label to each highlighted piece:</p>
+
+                    <div class="ml-8 bg-slate-900 text-slate-100 p-4 rounded-xl code-font text-xs sm:text-sm leading-relaxed">
+                        <div><span class="text-emerald-400 font-bold underline decoration-dotted">def greet_player(</span><span class="text-amber-300 font-bold underline decoration-dotted">player_name</span><span class="text-emerald-400 font-bold">):</span></div>
+                        <div class="pl-6 text-slate-300">print("Ready Player", player_name)</div>
+                        <div class="mt-2"><span class="text-sky-400 font-bold underline decoration-dotted">greet_player(</span><span class="text-rose-400 font-bold underline decoration-dotted">"Leo"</span><span class="text-sky-400 font-bold">)</span></div>
+                    </div>
+
+                    <!-- Draggable Labels (Scrambled Order) -->
+                    <div class="pl-8 flex flex-wrap gap-2" id="pool-m5">
+                        <div draggable="true" data-value="Function Call" data-target="fn_call" class="draggable-chip px-3 py-1.5 bg-sky-100 border border-sky-300 text-sky-900 rounded-xl text-xs font-extrabold">Function Call</div>
+                        <div draggable="true" data-value="Argument" data-target="fn_arg" class="draggable-chip px-3 py-1.5 bg-rose-100 border border-rose-300 text-rose-900 rounded-xl text-xs font-extrabold">Argument</div>
+                        <div draggable="true" data-value="Function Definition" data-target="fn_def" class="draggable-chip px-3 py-1.5 bg-emerald-100 border border-emerald-300 text-emerald-900 rounded-xl text-xs font-extrabold">Function Definition</div>
+                        <div draggable="true" data-value="Parameter" data-target="fn_param" class="draggable-chip px-3 py-1.5 bg-amber-100 border border-amber-300 text-amber-900 rounded-xl text-xs font-extrabold">Parameter</div>
+                    </div>
+
+                    <div class="pl-8 grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                        <div class="flex items-center justify-between gap-2 p-2.5 bg-white rounded-xl border border-slate-200">
+                            <code class="code-font text-xs font-bold text-emerald-700 shrink-0">def greet_player(...):</code>
+                            <div data-accept="fn_def" class="drop-zone w-36 h-9 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center"><div class="dropped-content"></div></div>
+                        </div>
+                        <div class="flex items-center justify-between gap-2 p-2.5 bg-white rounded-xl border border-slate-200">
+                            <code class="code-font text-xs font-bold text-amber-600 shrink-0">player_name</code>
+                            <div data-accept="fn_param" class="drop-zone w-36 h-9 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center"><div class="dropped-content"></div></div>
+                        </div>
+                        <div class="flex items-center justify-between gap-2 p-2.5 bg-white rounded-xl border border-slate-200">
+                            <code class="code-font text-xs font-bold text-sky-600 shrink-0">greet_player("Leo")</code>
+                            <div data-accept="fn_call" class="drop-zone w-36 h-9 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center"><div class="dropped-content"></div></div>
+                        </div>
+                        <div class="flex items-center justify-between gap-2 p-2.5 bg-white rounded-xl border border-slate-200">
+                            <code class="code-font text-xs font-bold text-rose-600 shrink-0">"Leo"</code>
+                            <div data-accept="fn_arg" class="drop-zone w-36 h-9 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center"><div class="dropped-content"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity 5.3: Function Taking Two Numbers as Input + Mini Calculator Simulator -->
+                <div class="border border-slate-200 rounded-2xl p-4 sm:p-5 bg-slate-50/50 space-y-3">
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" id="chk-5-3" onchange="syncProgress()" class="task-check mt-1 w-5 h-5 accent-emerald-600 rounded cursor-pointer">
+                        <label for="chk-5-3" class="font-bold text-slate-900 text-base cursor-pointer">
+                            Activity 5.3: Code It! Mini Calculator Function
+                        </label>
+                    </div>
+
+                    <!-- Interactive Mini Calculator Simulator (On Top, Pure Visual Output) -->
+                    <div class="ml-8 bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-2xl p-4 space-y-3 shadow-2xs">
+                        <div class="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-emerald-800">
+                            <span class="text-base">🧮</span> See How It Works
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <div class="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-xl border border-emerald-200">
+                                <span class="text-xs font-bold text-slate-500">First:</span>
+                                <input id="sim-calc-a" type="number" value="15" oninput="runCalcSim()" class="w-full text-xs font-extrabold text-slate-900 focus:outline-none">
+                            </div>
+                            <div class="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-xl border border-emerald-200">
+                                <span class="text-xs font-bold text-slate-500">Second:</span>
+                                <input id="sim-calc-b" type="number" value="27" oninput="runCalcSim()" class="w-full text-xs font-extrabold text-slate-900 focus:outline-none">
+                            </div>
+                            <button type="button" onclick="runCalcSim()" class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold transition shadow-2xs">▶ Add Numbers</button>
+                        </div>
+                        <div id="sim-calc-out" class="bg-white border border-emerald-200 text-emerald-800 text-sm font-bold p-3 rounded-xl flex items-center gap-2.5">
+                            <span class="text-xl">➕</span>
+                            <span>Total Sum: <b>42</b></span>
+                        </div>
+                    </div>
+
+                    <!-- Instructions Below (No integer type hints) -->
+                    <ol class="list-decimal list-inside text-sm text-slate-700 pl-8 space-y-1">
+                        <li>Create a function named <b class="code-font text-slate-900">add_numbers()</b> that asks for two numbers (<b class="code-font text-slate-900">a</b> and <b class="code-font text-slate-900">b</b>) and prints their sum.</li>
+                        <li>Call <b class="code-font text-slate-900">add_numbers()</b> below it so it runs!</li>
+                    </ol>
+                </div>
+
+                <!-- Read-Out Summary Box (Short, Simple Pointers) -->
+                <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-2xl p-4">
+                    <div class="mb-2">
+                        <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-800">🗣️ Read-Out Summary</span>
+                    </div>
+                    <ul id="sum-5" class="space-y-1.5 text-sm text-emerald-950 font-medium">
+                        <li onclick="toggleStrike(this)" class="cursor-pointer flex items-start gap-2 select-none hover:text-emerald-700">
+                            <span class="font-bold text-emerald-600">☐</span>
+                            <span>Use <code class="code-font font-bold">def</code> to make a function, then call its name to run it.</span>
+                        </li>
+                        <li onclick="toggleStrike(this)" class="cursor-pointer flex items-start gap-2 select-none hover:text-emerald-700">
+                            <span class="font-bold text-emerald-600">☐</span>
+                            <span><b>Parameter</b> is the variable inside <code class="code-font font-bold">def</code>.</span>
+                        </li>
+                        <li onclick="toggleStrike(this)" class="cursor-pointer flex items-start gap-2 select-none hover:text-emerald-700">
+                            <span class="font-bold text-emerald-600">☐</span>
+                            <span><b>Argument</b> is the real value passed when calling it.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Day 1 Victory Modal -->
+    <div id="victory-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-md w-full p-8 text-center shadow-2xl border-4 border-indigo-400">
+            <div class="w-20 h-20 mx-auto mb-4 bg-amber-100 rounded-full flex items-center justify-center text-5xl animate-bounce">
+                🏆
+            </div>
+            <span class="inline-block bg-indigo-100 text-indigo-800 font-extrabold text-xs px-3.5 py-1 rounded-full mb-2">
+                DAY 1 COMPLETE • 15 / 15 TASKS!
+            </span>
+            <h3 class="text-2xl font-extrabold text-slate-900 mb-2">Awesome Comeback!</h3>
+            <p class="text-sm text-slate-600 leading-relaxed mb-6">
+                You crushed Variables, Math, If/Else, Elif Logic, and Functions on your very first day back!
+            </p>
+            <div class="flex gap-3 justify-center">
+                <button type="button" onclick="fireConfetti()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow transition">
+                    🎉 Celebrate Again
+                </button>
+                <button type="button" onclick="closeVictory()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =========================================================================
+        // 1. AUDIO & CONFETTI REWARDS
+        // =========================================================================
+        let synth = null;
+        function playPop(notes = ["C5", "E5"]) {
+            try {
+                if (!synth) {
+                    synth = new Tone.PolySynth(Tone.Synth).toDestination();
+                    synth.volume.value = -14;
+                }
+                Tone.start();
+                const now = Tone.now();
+                notes.forEach((n, idx) => {
+                    synth.triggerAttackRelease(n, "16n", now + idx * 0.08);
+                });
+            } catch (e) {}
+        }
+
+        function fireConfetti() {
+            try {
+                confetti({ particleCount: 90, spread: 75, origin: { y: 0.6 } });
+            } catch (e) {}
+        }
+
+        // =========================================================================
+        // 2. TOGGLEABLE HINT BOXES & STRIKE-OUT SUMMARY POINTERS
+        // =========================================================================
+        function toggleHint(id) {
+            const box = document.getElementById(id);
+            if (!box) return;
+            box.classList.toggle('hidden');
+            playPop(["G4", "C5"]);
+        }
+
+        function toggleStrike(li) {
+            const boxIcon = li.querySelector('span:first-child');
+            const textSpan = li.querySelector('span:last-child');
+            const isDone = textSpan.classList.toggle('line-through');
+            textSpan.classList.toggle('opacity-50', isDone);
+            if (boxIcon) {
+                boxIcon.innerText = isDone ? '☑' : '☐';
+            }
+            playPop(isDone ? ["E5", "G5"] : ["C5"]);
+        }
+
+        // =========================================================================
+        // 2B. INTERACTIVE VISUAL SIMULATORS FOR CODING ACTIVITIES
+        // =========================================================================
+        function runGreeterSim() {
+            const game = document.getElementById('sim-greeter-game').value || 'Minecraft';
+            const hours = document.getElementById('sim-greeter-hours').value || '0';
+            document.getElementById('sim-greeter-out').innerHTML = `
+                <span class="text-xl">🕹️</span>
+                <span>You played <b>${game}</b> for <b>${hours} hours</b>!</span>
+            `;
+            playPop(["E5", "G5"]);
+        }
+
+        function runCandySim() {
+            const candies = parseInt(document.getElementById('sim-candies').value) || 0;
+            const friends = Math.max(1, parseInt(document.getElementById('sim-friends').value) || 1);
+            const each = Math.floor(candies / friends);
+            const left = candies % friends;
+            const candyIconsEach = '🍬'.repeat(Math.min(each, 10)) + (each > 10 ? '...' : '');
+            const candyIconsLeft = '🍬'.repeat(Math.min(left, 10)) + (left > 10 ? '...' : '');
+
+            document.getElementById('sim-candy-out').innerHTML = `
+                <div class="flex items-center gap-2"><span>🎁</span><span>Each friend gets: <b class="text-amber-700">${each} candies</b> ${candyIconsEach}</span></div>
+                <div class="flex items-center gap-2"><span>🥣</span><span>Left over in bowl: <b class="text-rose-600">${left} candies</b> ${candyIconsLeft}</span></div>
+            `;
+        }
+
+        function runTwinSim() {
+            const n1 = parseInt(document.getElementById('sim-num1').value) || 0;
+            const n2 = parseInt(document.getElementById('sim-num2').value) || 0;
+            const out = document.getElementById('sim-twin-out');
+            if (n1 === n2) {
+                out.className = "bg-white border border-purple-200 text-emerald-700 text-sm font-bold p-3 rounded-xl flex items-center gap-2.5";
+                out.innerHTML = `<span class="text-xl">✅</span><span>They are equal!</span>`;
+            } else {
+                out.className = "bg-white border border-purple-200 text-amber-700 text-sm font-bold p-3 rounded-xl flex items-center gap-2.5";
+                out.innerHTML = `<span class="text-xl">❌</span><span>Not equal!</span>`;
+            }
+        }
+
+        function runRideSim() {
+            const age = parseInt(document.getElementById('sim-ride-age').value) || 0;
+            const ticket = document.getElementById('sim-ride-ticket').value;
+            const out = document.getElementById('sim-ride-out');
+            if (age >= 10 && ticket === 'yes') {
+                out.className = "bg-white border border-rose-200 text-emerald-700 text-sm font-bold p-3 rounded-xl flex items-center gap-2.5";
+                out.innerHTML = `<span class="text-xl">🎢</span><span>Hop on! Enjoy the ride!</span>`;
+            } else if (ticket === 'no') {
+                out.className = "bg-white border border-rose-200 text-amber-700 text-sm font-bold p-3 rounded-xl flex items-center gap-2.5";
+                out.innerHTML = `<span class="text-xl">🎟️</span><span>Please get a ticket first!</span>`;
+            } else {
+                out.className = "bg-white border border-rose-200 text-rose-700 text-sm font-bold p-3 rounded-xl flex items-center gap-2.5";
+                out.innerHTML = `<span class="text-xl">🛑</span><span>Sorry, you must be 10 or older!</span>`;
+            }
+        }
+
+        function runCalcSim() {
+            const a = parseInt(document.getElementById('sim-calc-a').value) || 0;
+            const b = parseInt(document.getElementById('sim-calc-b').value) || 0;
+            document.getElementById('sim-calc-out').innerHTML = `
+                <span class="text-xl">➕</span>
+                <span>Total Sum: <b>${a + b}</b></span>
+            `;
+        }
+
+        // =========================================================================
+        // 3. ACTIVITY 1.1: VALID VARIABLE NAME TAPPER
+        // =========================================================================
+        let validFound = 0;
+        function toggleVarBtn(btn, isValid) {
+            if (btn.dataset.answered) return;
+            btn.dataset.answered = "true";
+            const feedback = document.getElementById('var-feedback');
+
+            if (isValid) {
+                validFound++;
+                btn.classList.remove('border-slate-300', 'bg-white');
+                btn.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-900');
+                btn.innerHTML += " ✅";
+                playPop(["E5", "G5"]);
+                if (validFound === 3) {
+                    feedback.innerText = "🎉 You found all 3 valid variable names! Check off Activity 1.1!";
+                } else {
+                    feedback.innerText = `Nice! ${validFound} of 3 valid variable names found.`;
+                }
+            } else {
+                btn.classList.remove('border-slate-300', 'bg-white');
+                btn.classList.add('border-rose-400', 'bg-rose-50', 'text-rose-800');
+                btn.innerHTML += " ❌";
+                playPop(["C4"]);
+                feedback.innerText = "Oops! Remember: no starting numbers, no spaces, and no hyphens (-).";
+            }
+        }
+
+        // =========================================================================
+        // 4. QUICK MCQ BUTTON CHECKER
+        // =========================================================================
+        function checkQuickMCQ(btn, isCorrect, feedbackId) {
+            const feedback = document.getElementById(feedbackId);
+            if (!feedback) return;
+            if (isCorrect) {
+                btn.classList.remove('border-slate-300', 'bg-white');
+                btn.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-900', 'font-bold');
+                feedback.className = "text-xs font-bold pt-1 text-emerald-700";
+                feedback.innerText = "✅ Spot on! Great thinking!";
+                playPop(["D5", "F#5", "A5"]);
+            } else {
+                btn.classList.add('border-rose-400', 'bg-rose-50', 'text-rose-800');
+                feedback.className = "text-xs font-bold pt-1 text-rose-600";
+                feedback.innerText = "❌ Not quite — try another option!";
+                playPop(["B3"]);
+            }
+        }
+
+        // =========================================================================
+        // 5. UNIFIED DRAG-AND-DROP + TAP-TO-PLACE ENGINE
+        // =========================================================================
+        let draggedChip = null;
+        let selectedChip = null;
+
+        function initDragAndDrop() {
+            const chips = document.querySelectorAll('.draggable-chip');
+            const zones = document.querySelectorAll('.drop-zone');
+
+            chips.forEach(chip => {
+                // Desktop HTML5 Drag
+                chip.addEventListener('dragstart', () => {
+                    draggedChip = chip;
+                    setTimeout(() => chip.classList.add('opacity-50'), 0);
+                });
+                chip.addEventListener('dragend', () => {
+                    chip.classList.remove('opacity-50');
+                    draggedChip = null;
+                });
+
+                // Touch / Click Selection Support
+                chip.addEventListener('click', () => {
+                    if (chip.dataset.locked === "true") return;
+                    if (selectedChip === chip) {
+                        chip.classList.remove('selected-chip');
+                        selectedChip = null;
+                    } else {
+                        chips.forEach(c => c.classList.remove('selected-chip'));
+                        selectedChip = chip;
+                        chip.classList.add('selected-chip');
+                    }
+                });
+            });
+
+            zones.forEach(zone => {
+                zone.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    zone.classList.add('drag-over');
+                });
+                zone.addEventListener('dragleave', () => {
+                    zone.classList.remove('drag-over');
+                });
+                zone.addEventListener('drop', e => {
+                    e.preventDefault();
+                    zone.classList.remove('drag-over');
+                    if (draggedChip) handleDrop(draggedChip, zone);
+                });
+
+                // Tap-to-place onto zone
+                zone.addEventListener('click', () => {
+                    if (selectedChip) {
+                        handleDrop(selectedChip, zone);
+                        selectedChip.classList.remove('selected-chip');
+                        selectedChip = null;
+                    }
+                });
+            });
+        }
+
+        function handleDrop(chip, zone) {
+            if (zone.dataset.filled === "true") return;
+            const expected = zone.dataset.accept;
+            const actual = chip.dataset.target;
+
+            if (expected === actual) {
+                zone.dataset.filled = "true";
+                chip.dataset.locked = "true";
+                chip.setAttribute('draggable', 'false');
+                chip.classList.remove('cursor-grab', 'selected-chip');
+                chip.classList.add('cursor-default', 'ring-2', 'ring-emerald-400');
+
+                const slot = zone.querySelector('.dropped-content');
+                slot.innerHTML = '';
+                slot.appendChild(chip);
+
+                zone.classList.remove('border-dashed', 'border-slate-300', 'bg-slate-50', 'bg-white');
+                zone.classList.add('border-solid', 'border-emerald-400', 'bg-emerald-50/70');
+                playPop(["E5", "A5"]);
+            } else {
+                zone.classList.add('border-rose-400', 'bg-rose-50');
+                playPop(["C4"]);
+                setTimeout(() => {
+                    zone.classList.remove('border-rose-400', 'bg-rose-50');
+                }, 450);
+            }
+        }
+
+        // =========================================================================
+        // 6. PROGRESS TRACKER & LOCALSTORAGE PERSISTENCE
+        // =========================================================================
+        const allCheckboxes = [
+            'chk-1-1', 'chk-1-2', 'chk-1-3',
+            'chk-2-1', 'chk-2-2', 'chk-2-3',
+            'chk-3-1', 'chk-3-2', 'chk-3-3',
+            'chk-4-1', 'chk-4-2', 'chk-4-3',
+            'chk-5-1', 'chk-5-2', 'chk-5-3'
+        ];
+
+        let victoryShown = false;
+
+        function syncProgress() {
+            let totalDone = 0;
+            const missionCounts = [0, 0, 0, 0, 0];
+
+            allCheckboxes.forEach((id, idx) => {
+                const el = document.getElementById(id);
+                if (el && el.checked) {
+                    totalDone++;
+                    missionCounts[Math.floor(idx / 3)]++;
+                }
+            });
+
+            // Update mission badges
+            missionCounts.forEach((count, mIdx) => {
+                const badge = document.getElementById(`m${mIdx + 1}-badge`);
+                if (badge) {
+                    badge.innerText = `${count} / 3 Done`;
+                    if (count === 3) {
+                        badge.classList.remove('bg-white/20');
+                        badge.classList.add('bg-emerald-400', 'text-slate-950');
+                    } else {
+                        badge.classList.add('bg-white/20');
+                        badge.classList.remove('bg-emerald-400', 'text-slate-950');
+                    }
+                }
+            });
+
+            // Update top XP bar
+            const pct = Math.round((totalDone / allCheckboxes.length) * 100);
+            const xpBar = document.getElementById('xp-bar');
+            const xpCounter = document.getElementById('xp-counter');
+            if (xpBar) xpBar.style.width = `${pct}%`;
+            if (xpCounter) xpCounter.innerText = `${totalDone} / ${allCheckboxes.length} Tasks`;
+
+            // Save state
+            const state = {};
+            allCheckboxes.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) state[id] = el.checked;
+            });
+            try {
+                localStorage.setItem('py_day1_quest_v1', JSON.stringify(state));
+            } catch (e) {}
+
+            // Trigger victory modal if all 15 tasks completed
+            if (totalDone === allCheckboxes.length && !victoryShown) {
+                victoryShown = true;
+                playPop(["C5", "E5", "G5", "C6"]);
+                fireConfetti();
+                const modal = document.getElementById('victory-modal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+            } else if (totalDone < allCheckboxes.length) {
+                victoryShown = false;
+            }
+        }
+
+        function closeVictory() {
+            const modal = document.getElementById('victory-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function resetQuest() {
+            allCheckboxes.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.checked = false;
+            });
+            victoryShown = false;
+            syncProgress();
+            location.reload();
+        }
+
+        window.onload = function() {
+            initDragAndDrop();
+            try {
+                const saved = JSON.parse(localStorage.getItem('py_day1_quest_v1'));
+                if (saved) {
+                    allCheckboxes.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (saved[id] && el) el.checked = true;
+                    });
+                }
+            } catch (e) {}
+            syncProgress();
+        };
+    </script>
+</body>
+</html>
